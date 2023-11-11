@@ -11,16 +11,12 @@ class User(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     name: str = Field(...)
     email: EmailStr = Field(...)
-    booked: bool = Field(...)
+    booking: Optional[PyObjectId] = Field(alias="_id", default=None)
     model_config = ConfigDict(
         populate_by_name=True,
         arbitrary_types_allowed=True,
         json_schema_extra={
-            "example": {
-                "name": "Jane Doe",
-                "email": "jdoe@example.com",
-                "booked": False,
-            }
+            "example": {"name": "Jane Doe", "email": "jdoe@example.com", "booking": ""}
         },
     )
 
@@ -36,11 +32,9 @@ class Booking(BaseModel):
         arbitrary_types_allowed=True,
         json_schema_extra={
             "example": {
-                "user": {
-                    "name": "Jane Doe",
-                    "email": "jdoe@example.com",
-                    "booked": False,
-                },
+                "day": 0,
+                "month": 3,
+                "year": 2023,
                 "start": 7,
                 "end": 8,
                 "court": 1,
