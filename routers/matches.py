@@ -1,7 +1,7 @@
 from fastapi import APIRouter, FastAPI, HTTPException
 import os
 from typing import Optional, List
-from routers.model_design import Booking, User, BookingCollection
+from src.model_design import Booking, User, BookingCollection
 from fastapi import FastAPI, Body, HTTPException, status
 from fastapi.responses import Response
 from pydantic import ConfigDict, BaseModel, Field, EmailStr

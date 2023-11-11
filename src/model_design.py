@@ -54,10 +54,21 @@ class User(BaseModel):
 
 
 class BookingCollection(BaseModel):
-    """
-    A container holding a list of `StudentModel` instances.
-
-    This exists because providing a top-level array in a JSON response can be a [vulnerability](https://haacked.com/archive/2009/06/25/json-hijacking.aspx/)
-    """
-
     bookings: List[Booking]
+
+
+class Court(BaseModel):
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    number: int = Field(ge=1, le=3)
+    hours: BookingCollection
+    model_config = ConfigDict(
+        populate_by_name=True,
+        arbitrary_types_allowed=True,
+        json_schema_extra={
+            "example": {
+                "name": "Jane Doe",
+                "email": "jdoe@example.com",
+                "booked": False,
+            }
+        },
+    )
