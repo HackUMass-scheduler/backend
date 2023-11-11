@@ -41,11 +41,6 @@ async def create_user(user: User = Body(...)):
     response_model_by_alias=False,
 )
 async def create_booking(booking: Booking = Body(...)):
-    """
-    Insert a new student record.
-
-    A unique `id` will be created and provided in the response.
-    """
     new_booking = await booking_collection.insert_one(
         booking.model_dump(by_alias=True, exclude=["id"])
     )
