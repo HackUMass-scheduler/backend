@@ -53,6 +53,8 @@ async def create_user(user: User = Body(...)):
 async def create_booking(booking: Booking = Body(...)):
     conflictingbookings = await booking_collection.count_documents({
         "day": booking.day,
+        "month": booking.month,
+        "year": booking.year,
         "start": booking.start,
         "court": booking.court
     })
