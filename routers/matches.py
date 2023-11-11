@@ -51,6 +51,15 @@ async def create_user(user: User = Body(...)):
     response_model_by_alias=False,
 )
 async def create_booking(booking: Booking = Body(...)):
+    conflictingbookings = await booking_collection.count_documents({
+        "day": booking.day,
+        "start": booking.start,
+        "court": booking.court
+    })
+
+    if conflictingbookings > 0:
+        raise HTTPException(status_code=400, detail="timeslot is already booked")
+
     new_booking = await booking_collection.insert_one(
         booking.model_dump(by_alias=True, exclude=["id"])
     )
