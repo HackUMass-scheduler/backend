@@ -1,6 +1,7 @@
 from fastapi import FastAPI
-from routers import users
+
 from routers import matches
+from routers import users
 
 app = FastAPI()
 

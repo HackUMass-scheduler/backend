@@ -1,16 +1,8 @@
-import os
 from typing import Optional, List
 
-from fastapi import FastAPI, Body, HTTPException, status
-from fastapi.responses import Response
 from pydantic import ConfigDict, BaseModel, Field, EmailStr
 from pydantic.functional_validators import BeforeValidator
-
 from typing_extensions import Annotated
-
-from bson import ObjectId
-import motor.motor_asyncio
-from pymongo import ReturnDocument
 
 PyObjectId = Annotated[str, BeforeValidator(str)]
 
@@ -54,10 +46,25 @@ class User(BaseModel):
 
 
 class BookingCollection(BaseModel):
-    """
-    A container holding a list of `StudentModel` instances.
-
-    This exists because providing a top-level array in a JSON response can be a [vulnerability](https://haacked.com/archive/2009/06/25/json-hijacking.aspx/)
-    """
-
     bookings: List[Booking]
+
+
+class UserCollection(BaseModel):
+    users: List[User]
+
+
+class Court(BaseModel):
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    number: int = Field(ge=1, le=3)
+    hours: BookingCollection
+    model_config = ConfigDict(
+        populate_by_name=True,
+        arbitrary_types_allowed=True,
+        json_schema_extra={
+            "example": {
+                "name": "Jane Doe",
+                "email": "jdoe@example.com",
+                "booked": False,
+            }
+        },
+    )

@@ -1,34 +1,12 @@
-from fastapi import APIRouter, FastAPI, HTTPException
 import os
-from typing import Optional, List
-from routers.model_design import Booking, User, BookingCollection
-from fastapi import FastAPI, Body, HTTPException, status
-from fastapi.responses import Response
-from pydantic import ConfigDict, BaseModel, Field, EmailStr
-from pydantic.functional_validators import BeforeValidator
 
-from typing_extensions import Annotated
-
-from bson import ObjectId
 import motor.motor_asyncio
-from pymongo import ReturnDocument
+from fastapi import APIRouter
+from fastapi import Body, status
+
+from src.model_design import Booking, User, BookingCollection, UserCollection
 
 router = APIRouter(prefix="/matches")
-# match_db = {
-#     "match1": {
-#         "player": "niranjan",
-#         "winner": "me",
-#     },
-#     "match2": {
-#         "player": "mathirajan",
-#         "winner": "you",
-#     },
-# }
-
-# app = FastAPI(
-#     title="Student Course API",
-#     summary="A sample application showing how to use FastAPI to add a ReST API to a MongoDB collection.",
-# )
 
 os.environ[
     "MONGODB_URL"
@@ -36,17 +14,25 @@ os.environ[
 
 client = motor.motor_asyncio.AsyncIOMotorClient(os.environ["MONGODB_URL"])
 db = client.college
-booking_colleciton = db.get_collection("bookings")
+booking_collection = db.get_collection("bookings")
+users_collection = db.get_collection("users")
 
 
-# @app.get("/{match_id}")
-# async def match_info(match_id: str):
-#     if match_id not in db:
-#         raise HTTPException(status_code=404)
-#     return {
-#         "match player": match_db[match_id]["player"],
-#         "match winner": match_db[match_id]["winner"],
-#     }
+@router.post(
+    "/users",
+    response_description="Add new User",
+    response_model=User,
+    status_code=status.HTTP_201_CREATED,
+    response_model_by_alias=False,
+)
+async def create_user(user: User = Body(...)):
+    new_user = await users_collection.insert_one(
+        user.model_dump(by_alias=True, exclude=["id"])
+    )
+    created_user = await users_collection.find_one(
+        {"_id": new_user.inserted_id}
+    )
+    return created_user
 
 
 @router.post(
@@ -62,10 +48,10 @@ async def create_booking(booking: Booking = Body(...)):
 
     A unique `id` will be created and provided in the response.
     """
-    new_booking = await booking_colleciton.insert_one(
+    new_booking = await booking_collection.insert_one(
         booking.model_dump(by_alias=True, exclude=["id"])
     )
-    created_booking = await booking_colleciton.find_one(
+    created_booking = await booking_collection.find_one(
         {"_id": new_booking.inserted_id}
     )
     return created_booking
@@ -78,4 +64,14 @@ async def create_booking(booking: Booking = Body(...)):
     response_model_by_alias=False,
 )
 async def list_bookings():
-    return BookingCollection(bookings=await booking_colleciton.find().to_list(1000))
+    return BookingCollection(bookings=await booking_collection.find().to_list(1000))
+
+
+@router.get(
+    "/users/",
+    response_description="List all users",
+    response_model=UserCollection,
+    response_model_by_alias=False,
+)
+async def list_bookings():
+    return UserCollection(users=await users_collection.find().to_list(1000))
