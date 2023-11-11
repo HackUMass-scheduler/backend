@@ -30,6 +30,7 @@ class Booking(BaseModel):
     user: User
     start: int = Field(...)
     end: int = Field(...)
+    court: int = Field(ge=1, le=3)
     model_config = ConfigDict(
         populate_by_name=True,
         arbitrary_types_allowed=True,
@@ -42,6 +43,7 @@ class Booking(BaseModel):
                 },
                 "start": 7,
                 "end": 8,
+                "court": 1,
             }
         },
     )
@@ -70,3 +72,7 @@ class Court(BaseModel):
             }
         },
     )
+
+
+class CourtCollection(BaseModel):
+    courts: List[Court]
