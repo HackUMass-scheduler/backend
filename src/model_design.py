@@ -7,26 +7,6 @@ from typing_extensions import Annotated
 PyObjectId = Annotated[str, BeforeValidator(str)]
 
 
-class Booking(BaseModel):
-    id: Optional[PyObjectId] = Field(alias="_id", default=None)
-    name: str = Field(...)
-    email: EmailStr = Field(...)
-    start: int = Field(...)
-    end: int = Field(...)
-    model_config = ConfigDict(
-        populate_by_name=True,
-        arbitrary_types_allowed=True,
-        json_schema_extra={
-            "example": {
-                "name": "Jane Doe",
-                "email": "jdoe@example.com",
-                "start": 7,
-                "end": 8,
-            }
-        },
-    )
-
-
 class User(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     name: str = Field(...)
@@ -40,6 +20,28 @@ class User(BaseModel):
                 "name": "Jane Doe",
                 "email": "jdoe@example.com",
                 "booked": False,
+            }
+        },
+    )
+
+
+class Booking(BaseModel):
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    user: User
+    start: int = Field(...)
+    end: int = Field(...)
+    model_config = ConfigDict(
+        populate_by_name=True,
+        arbitrary_types_allowed=True,
+        json_schema_extra={
+            "example": {
+                "user": {
+                    "name": "Jane Doe",
+                    "email": "jdoe@example.com",
+                    "booked": False,
+                },
+                "start": 7,
+                "end": 8,
             }
         },
     )
@@ -64,7 +66,7 @@ class Court(BaseModel):
             "example": {
                 "name": "Jane Doe",
                 "email": "jdoe@example.com",
-                "booked": False,
+                "number": 1,
             }
         },
     )

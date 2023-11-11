@@ -19,7 +19,7 @@ users_collection = db.get_collection("users")
 
 
 @router.post(
-    "/users",
+    "/users/",
     response_description="Add new User",
     response_model=User,
     status_code=status.HTTP_201_CREATED,
@@ -29,9 +29,7 @@ async def create_user(user: User = Body(...)):
     new_user = await users_collection.insert_one(
         user.model_dump(by_alias=True, exclude=["id"])
     )
-    created_user = await users_collection.find_one(
-        {"_id": new_user.inserted_id}
-    )
+    created_user = await users_collection.find_one({"_id": new_user.inserted_id})
     return created_user
 
 
