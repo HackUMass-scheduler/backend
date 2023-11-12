@@ -11,12 +11,12 @@ class User(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     name: str = Field(...)
     email: EmailStr = Field(...)
-    booking: Optional[PyObjectId] = Field(alias="_id", default=None)
+    booking: Optional[PyObjectId] = None
     model_config = ConfigDict(
         populate_by_name=True,
         arbitrary_types_allowed=True,
         json_schema_extra={
-            "example": {"name": "Jane Doe", "email": "jdoe@example.com", "booking": ""}
+            "example": {"name": "Jane Doe", "email": "jdoe@example.com"}
         },
     )
 
