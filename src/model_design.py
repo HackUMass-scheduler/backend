@@ -23,10 +23,13 @@ class User(BaseModel):
 
 class Booking(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
-    user: User
-    start: int = Field(...)
-    end: int = Field(...)
     court: int = Field(ge=1, le=3)
+    day: int = Field(...)
+    end: int = Field(...)
+    month: int = Field(...)
+    start: int = Field(...)
+    year: int = Field(...)
+
     model_config = ConfigDict(
         populate_by_name=True,
         arbitrary_types_allowed=True,

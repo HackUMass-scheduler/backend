@@ -51,6 +51,19 @@ async def create_user(user: User = Body(...)):
     response_model_by_alias=False,
 )
 async def create_booking(booking: Booking = Body(...)):
+    conflicting_bookings = await booking_collection.count_documents(
+        {
+            "day": booking.day,
+            "month": booking.month,
+            "year": booking.year,
+            "start": booking.start,
+            "court": booking.court,
+        }
+    )
+
+    if conflicting_bookings > 0:
+        raise HTTPException(status_code=400, detail="timeslot is already booked")
+
     new_booking = await booking_collection.insert_one(
         booking.model_dump(by_alias=True, exclude=["id"])
     )
@@ -137,3 +150,19 @@ async def change_booking(id: str, booking: Booking = Body(...)):
         return existing_booking
 
     raise HTTPException(status_code=404, detail=f"Student {id} not found")
+
+
+@router.get(
+    "/users/{email}",
+    response_description="get a specific username",
+    response_model=User,
+    response_model_by_alias=False,
+)
+async def get_user_by_email(email):
+    user = await users_collection.find_one({"email": email})
+    if user:
+        return user
+    raise HTTPException(
+        status_code=404,
+        detail=f"There is an issue with this email being in the database",
+    )
