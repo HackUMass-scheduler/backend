@@ -163,11 +163,34 @@ async def get_user_by_email(email):
 
 
 @router.get(
-    "/bookings/daily",
-    response_model=BookingCollection
+    "/bookings/data",
+    response_description="get a specific booking",
+    response_model=Booking,
+    response_model_by_alias=False,
 )
-async def get_daily_bookings(day: int, month: int, year: int):
-    bookings = await booking_collection.find({"day": day, "month": month, "year": year}).to_list(20)
+async def get_user_by_email(date, month, year, court, start, end):
+    booking = await booking_collection.find_one(
+        {
+            "day": date,
+            "month": month,
+            "year": year,
+            "court": court,
+            "start": start,
+            "end": end,
+        }
+    )
+    if booking:
+        return booking
+
+    raise HTTPException(
+        status_code=404,
+        detail=f"this email is NOT in the database",
+    )
+
+
+@router.get("/bookings/daily", response_model=BookingCollection)
+async def get_daily_bookings(day: int, month: int, year: int, court: int):
+    bookings = await booking_collection.find(
+        {"day": day, "month": month, "year": year, "court": court}
+    ).to_list(20)
     return BookingCollection(bookings=bookings)
-
-
