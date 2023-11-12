@@ -108,3 +108,32 @@ async def list_bookings():
 )
 async def list_bookings():
     return UserCollection(users=await users_collection.find().to_list(1000))
+
+
+@router.put(
+    "/users/{id}",
+    response_description="Modify user booking id",
+    response_model=User,
+    response_model_by_alias=False,
+)
+async def change_booking(id: str, booking: Booking = Body(...)):
+    booking = {
+        k: v for k, v in booking.model_dump(by_alias=True).items() if v is not None
+    }
+
+    if len(booking) >= 1:
+        update_result = await booking_collection.find_one_and_update(
+            {"_id": ObjectId(id)},
+            {"$set": booking},
+            return_document=ReturnDocument.AFTER,
+        )
+        if update_result is not None:
+            return update_result
+        else:
+            raise HTTPException(status_code=404, detail=f"Student {id} not found")
+
+    # The update is empty, but we should still return the matching document:
+    if (existing_booking := await booking_collection.find_one({"_id": id})) is not None:
+        return existing_booking
+
+    raise HTTPException(status_code=404, detail=f"Student {id} not found")
