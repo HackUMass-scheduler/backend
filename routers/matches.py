@@ -137,7 +137,7 @@ async def list_bookings():
 async def change_user_booking(id: str, booking_id: str):
     update_result = await users_collection.find_one_and_update(
         {"_id": ObjectId(id)},
-        {"$set": {"booking": booking_id}},
+        {"$push": {"booking": booking_id}},
         return_document=ReturnDocument.AFTER,
     )
     if update_result is not None:

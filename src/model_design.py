@@ -11,7 +11,7 @@ class User(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     name: str = Field(...)
     email: EmailStr = Field(...)
-    booking: Optional[PyObjectId] = None
+    booking: Optional[List[PyObjectId]] = []
     model_config = ConfigDict(
         populate_by_name=True,
         arbitrary_types_allowed=True,
