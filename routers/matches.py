@@ -36,6 +36,11 @@ court_collection = db.get_collection("courts")
     response_model_by_alias=False,
 )
 async def create_user(user: User = Body(...)):
+    conflicting_user = await users_collection.count_documents({"email": user.email})
+
+    if conflicting_user > 0:
+        return user
+
     new_user = await users_collection.insert_one(
         user.model_dump(by_alias=True, exclude=["id"])
     )
@@ -153,5 +158,16 @@ async def get_user_by_email(email):
         return user
     raise HTTPException(
         status_code=404,
-        detail=f"There is an issue with this email being in the database",
+        detail=f"this email is NOT in the database",
     )
+
+
+@router.get(
+    "/bookings/daily",
+    response_model=BookingCollection
+)
+async def get_daily_bookings(day: int, month: int, year: int):
+    bookings = await booking_collection.find({"day": day, "month": month, "year": year}).to_list(20)
+    return BookingCollection(bookings=bookings)
+
+
