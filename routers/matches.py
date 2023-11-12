@@ -51,7 +51,7 @@ async def create_user(user: User = Body(...)):
     response_model_by_alias=False,
 )
 async def create_booking(booking: Booking = Body(...)):
-    conflictingbookings = await booking_collection.count_documents({
+    conflicting_bookings = await booking_collection.count_documents({
         "day": booking.day,
         "month": booking.month,
         "year": booking.year,
@@ -59,7 +59,7 @@ async def create_booking(booking: Booking = Body(...)):
         "court": booking.court
     })
 
-    if conflictingbookings > 0:
+    if conflicting_bookings > 0:
         raise HTTPException(status_code=400, detail="timeslot is already booked")
 
     new_booking = await booking_collection.insert_one(
@@ -119,3 +119,16 @@ async def list_bookings():
 )
 async def list_bookings():
     return UserCollection(users=await users_collection.find().to_list(1000))
+
+
+@router.get(
+    "/users/{email}",
+    response_description="get a specific username",
+    response_model=User,
+    response_model_by_alias=False,
+)
+async def get_user_by_email(email):
+    user = await users_collection.find_one({"email": email})
+    if user:
+        return user
+    raise HTTPException(status_code=404, detail=f"There is an issue with this email being in the database")
