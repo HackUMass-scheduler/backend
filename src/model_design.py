@@ -29,6 +29,7 @@ class Booking(BaseModel):
     month: int = Field(...)
     start: int = Field(...)
     year: int = Field(...)
+    user: str = Field(...)
 
     model_config = ConfigDict(
         populate_by_name=True,
