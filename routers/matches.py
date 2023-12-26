@@ -188,9 +188,29 @@ async def get_user_by_email(date, month, year, court, start, end):
     )
 
 
+@router.delete("/bookings/delete", response_description="delete a booking")
+async def delete_booking(day: int, month: int, year: int, start: int, court: int):
+    deleted = await booking_collection.delete_one(
+        {"day": day, "month": month, "year": year, "start": start, "court": court}
+    )
+    if deleted.deleted_count == 1:
+        return {"message": "Booking deleted successfully"}
+
+    raise HTTPException(
+        status_code=404,
+        detail="Booking not found",
+    )
+
+
 @router.get("/bookings/daily", response_model=BookingCollection)
 async def get_daily_bookings(day: int, month: int, year: int, court: int):
     bookings = await booking_collection.find(
         {"day": day, "month": month, "year": year, "court": court}
     ).to_list(20)
+    return BookingCollection(bookings=bookings)
+
+
+@router.get("/bookings/users", response_model=BookingCollection)
+async def get_daily_bookings(user: str):
+    bookings = await booking_collection.find({"user": user}).to_list(20)
     return BookingCollection(bookings=bookings)
